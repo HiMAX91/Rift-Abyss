@@ -3,304 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>裂縫深淵</title>
-  <style>
-    :root {
-      --bg: #05060a;
-      --bg-soft: #0b0f1c;
-      --text: #f5f7ff;
-      --muted: rgba(245, 247, 255, 0.62);
-      --line: rgba(255, 255, 255, 0.08);
-      --accent: #8b7cff;
-      --accent-2: #4cc9ff;
-      --glow: rgba(139, 124, 255, 0.45);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(76, 201, 255, 0.06), transparent 18%),
-        radial-gradient(circle at 50% 50%, rgba(139, 124, 255, 0.1), transparent 32%),
-        linear-gradient(180deg, #040509 0%, #070912 45%, #040509 100%);
-      color: var(--text);
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background:
-        linear-gradient(to bottom, rgba(255,255,255,0.02), transparent 12%, transparent 88%, rgba(255,255,255,0.02)),
-        linear-gradient(to right, rgba(255,255,255,0.02), transparent 12%, transparent 88%, rgba(255,255,255,0.02));
-      pointer-events: none;
-    }
-
-    .scene {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      isolation: isolate;
-    }
-
-    .rift {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 2px;
-      height: 56vh;
-      transform: translate(-50%, -50%) rotate(8deg);
-      background: linear-gradient(
-        to bottom,
-        transparent,
-        rgba(76, 201, 255, 0.35),
-        rgba(139, 124, 255, 1),
-        rgba(76, 201, 255, 0.35),
-        transparent
-      );
-      box-shadow:
-        0 0 12px rgba(139, 124, 255, 0.9),
-        0 0 32px rgba(139, 124, 255, 0.5),
-        0 0 80px rgba(76, 201, 255, 0.15);
-      animation: pulse 4s ease-in-out infinite;
-      opacity: 0.95;
-      z-index: 0;
-    }
-
-    .rift::before,
-    .rift::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      filter: blur(48px);
-      z-index: -1;
-    }
-
-    .rift::before {
-      background: rgba(139, 124, 255, 0.18);
-    }
-
-    .rift::after {
-      background: rgba(76, 201, 255, 0.08);
-      width: 280px;
-      height: 280px;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 0.72;
-        height: 52vh;
-      }
-      50% {
-        opacity: 1;
-        height: 58vh;
-      }
-    }
-
-    .panel {
-      position: relative;
-      z-index: 2;
-      width: min(960px, 100%);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 22px;
-    }
-
-    .eyebrow {
-      font-size: 11px;
-      letter-spacing: 0.42em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .title {
-      font-size: clamp(58px, 11vw, 140px);
-      line-height: 0.9;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      text-shadow: 0 0 28px rgba(139, 124, 255, 0.14);
-    }
-
-    .subtitle {
-      max-width: 760px;
-      font-size: 15px;
-      line-height: 1.9;
-      color: var(--muted);
-    }
-
-    .divider {
-      width: min(440px, 72vw);
-      height: 1px;
-      background: linear-gradient(to right, transparent, rgba(255,255,255,0.18), transparent);
-    }
-
-    .actions {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 6px;
-    }
-
-    .btn {
-      min-width: 150px;
-      padding: 14px 22px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.03);
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      transition: all 0.28s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      border-color: rgba(139, 124, 255, 0.4);
-      box-shadow: 0 0 20px rgba(139, 124, 255, 0.12);
-      background: rgba(255,255,255,0.05);
-    }
-
-    .btn.primary {
-      background: linear-gradient(180deg, rgba(139, 124, 255, 0.16), rgba(255,255,255,0.04));
-      border-color: rgba(139, 124, 255, 0.34);
-      box-shadow: 0 0 24px rgba(139, 124, 255, 0.12);
-    }
-
-    .meta {
-      margin-top: 12px;
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-      justify-content: center;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .meta span {
-      position: relative;
-      padding: 0 12px;
-    }
-
-    .meta span:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      right: -2px;
-      top: 50%;
-      width: 1px;
-      height: 12px;
-      background: rgba(255,255,255,0.12);
-      transform: translateY(-50%);
-    }
-
-    .status {
-      margin-top: 8px;
-      font-size: 13px;
-      color: rgba(76, 201, 255, 0.88);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      min-height: 20px;
-    }
-
-    @media (max-width: 640px) {
-      .scene {
-        padding: 24px;
-      }
-
-      .subtitle {
-        font-size: 14px;
-        line-height: 1.75;
-      }
-
-      .actions {
-        width: 100%;
-        flex-direction: column;
-      }
-
-      .btn {
-        width: 100%;
-      }
-
-      .meta {
-        gap: 8px;
-      }
-    }
-  </style>
+  <title>裂縫深淵 Launcher</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="scene">
-    <div class="rift"></div>
+  <div class="noise"></div>
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+  <div class="rift" aria-hidden="true"></div>
 
-    <section class="panel">
-      <p class="eyebrow">RIFT ABYSS LAUNCHER</p>
-      <h1 class="title">裂縫深淵</h1>
-      <div class="divider"></div>
-      <p class="subtitle">
-        在世界崩裂之後，仍有人凝視深淵。真正的入口，不需要喧鬧，
-        只需要足夠強的存在感。
-      </p>
+  <main class="launcher" id="launcher">
+    <p class="eyebrow">RIFT ABYSS / TURBOWARP LAUNCHER</p>
 
-      <div class="actions">
-        <button class="btn primary" id="launchBtn">啟動遊戲</button>
-        <button class="btn" id="updateBtn">查看更新</button>
-        <button class="btn" id="settingsBtn">設定</button>
-      </div>
+    <h1 class="title">
+      <span>裂縫</span>
+      <span>深淵</span>
+    </h1>
 
-      <div class="meta">
-        <span>Version 1.0.0</span>
-        <span>Ready</span>
-        <span>Windows Build</span>
-      </div>
+    <p class="description">
+      真正的入口不需要喧鬧。<br />
+      只需要一道足夠深的裂縫，讓人願意走進去。
+    </p>
 
-      <div class="status" id="statusText">SYSTEM READY</div>
-    </section>
+    <div class="actions">
+      <button class="btn btn-primary" id="launchBtn">啟動遊戲</button>
+      <button class="btn" id="updateBtn">查看更新</button>
+      <button class="btn" id="settingsBtn">設定</button>
+    </div>
+
+    <div class="meta">
+      <span>Version 1.0.0</span>
+      <span>TurboWarp Ready</span>
+      <span>Minimal Build</span>
+    </div>
+
+    <p class="status" id="statusText">SYSTEM READY</p>
   </main>
 
-  <script>
-    const statusText = document.getElementById('statusText');
-    const launchBtn = document.getElementById('launchBtn');
-    const updateBtn = document.getElementById('updateBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
+  <section class="panel" id="updatePanel" aria-hidden="true">
+    <div class="panel-head">
+      <h2>更新資訊</h2>
+      <button class="panel-close" data-close="updatePanel">×</button>
+    </div>
 
-    launchBtn.addEventListener('click', () => {
-      statusText.textContent = 'AWAKENING THE ABYSS...';
-      setTimeout(() => {
-        statusText.textContent = 'LAUNCH SEQUENCE COMPLETE';
-      }, 1200);
-    });
+    <div class="panel-block">
+      <p class="panel-label">目前版本</p>
+      <p class="panel-value">1.0.0</p>
+    </div>
 
-    updateBtn.addEventListener('click', () => {
-      statusText.textContent = 'NO NEW PATCHES DETECTED';
-    });
+    <div class="panel-block">
+      <p class="panel-label">最新消息</p>
+      <p class="panel-text">目前為展示版啟動器，之後可直接把入口接到 TurboWarp 遊戲。</p>
+    </div>
 
-    settingsBtn.addEventListener('click', () => {
-      statusText.textContent = 'SETTINGS PANEL COMING NEXT';
-    });
-  </script>
+    <div class="panel-block">
+      <p class="panel-label">更新狀態</p>
+      <p class="panel-text">目前沒有新的更新檔。</p>
+    </div>
+  </section>
+
+  <section class="panel" id="settingsPanel" aria-hidden="true">
+    <div class="panel-head">
+      <h2>啟動設定</h2>
+      <button class="panel-close" data-close="settingsPanel">×</button>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">啟動模式</p>
+      <p class="panel-value" id="modeValue">TurboWarp URL</p>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">TurboWarp 連結</p>
+      <p class="panel-text" id="turbowarpUrlText"></p>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">說明</p>
+      <p class="panel-text">如果之後你們把遊戲搬進自己的專案，只要把啟動模式改成 local_html 就行。</p>
+    </div>
+  </section>
+
+  <div class="launch-overlay" id="launchOverlay">
+    <div class="launch-line"></div>
+    <p class="launch-text">OPENING THE RIFT...</p>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
