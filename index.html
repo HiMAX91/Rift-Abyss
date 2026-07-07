@@ -8,42 +8,60 @@
 </head>
 <body>
   <div class="noise"></div>
-  <div class="glow glow-a"></div>
-  <div class="glow glow-b"></div>
-  <div class="rift" aria-hidden="true"></div>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
 
   <main class="launcher" id="launcher">
-    <p class="eyebrow">RIFT ABYSS / TURBOWARP LAUNCHER</p>
+    <div class="launcher-inner">
+      <p class="eyebrow">RIFT ABYSS / LAUNCHER</p>
+      <h1 class="title">裂縫深淵</h1>
+      <p class="description">
+        真正的入口不需要喧鬧，
+        只需要一道足夠深的裂縫，讓人願意走進去。
+      </p>
 
-    <h1 class="title">
-      <span>裂縫</span>
-      <span>深淵</span>
-    </h1>
+      <div class="actions">
+        <button class="btn btn-primary" id="launchBtn">啟動遊戲</button>
+        <button class="btn" id="updateBtn">查看更新</button>
+        <button class="btn" id="settingsBtn">設定</button>
+      </div>
 
-    <p class="description">
-      真正的入口不需要喧鬧。<br />
-      只需要一道足夠深的裂縫，讓人願意走進去。
-    </p>
+      <div class="meta">
+        <span>Version 1.0.0</span>
+        <span>Imported Build</span>
+        <span>Minimal Mode</span>
+      </div>
 
-    <div class="actions">
-      <button class="btn btn-primary" id="launchBtn">啟動遊戲</button>
-      <button class="btn" id="updateBtn">查看更新</button>
-      <button class="btn" id="settingsBtn">設定</button>
+      <p class="status" id="statusText">SYSTEM READY</p>
     </div>
-
-    <div class="meta">
-      <span>Version 1.0.0</span>
-      <span>TurboWarp Ready</span>
-      <span>Minimal Build</span>
-    </div>
-
-    <p class="status" id="statusText">SYSTEM READY</p>
   </main>
+
+  <section class="panel" id="settingsPanel" aria-hidden="true">
+    <div class="panel-head">
+      <h2>啟動設定</h2>
+      <button class="panel-close" id="closeSettingsBtn">×</button>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">遊戲載入方式</p>
+      <p class="panel-value">本地匯入檔案</p>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">遊戲檔路徑</p>
+      <p class="panel-text" id="gamePathText"></p>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">說明</p>
+      <p class="panel-text">按下啟動後，會先播放黑場與裂縫打開動畫，再顯示已匯入的遊戲。</p>
+    </div>
+  </section>
 
   <section class="panel" id="updatePanel" aria-hidden="true">
     <div class="panel-head">
       <h2>更新資訊</h2>
-      <button class="panel-close" data-close="updatePanel">×</button>
+      <button class="panel-close" id="closeUpdateBtn">×</button>
     </div>
 
     <div class="panel-block">
@@ -52,42 +70,27 @@
     </div>
 
     <div class="panel-block">
-      <p class="panel-label">最新消息</p>
-      <p class="panel-text">目前為展示版啟動器，之後可直接把入口接到 TurboWarp 遊戲。</p>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">更新狀態</p>
-      <p class="panel-text">目前沒有新的更新檔。</p>
+      <p class="panel-label">目前狀態</p>
+      <p class="panel-text">展示版啟動器已完成，可直接載入匯入的遊戲檔。</p>
     </div>
   </section>
 
-  <section class="panel" id="settingsPanel" aria-hidden="true">
-    <div class="panel-head">
-      <h2>啟動設定</h2>
-      <button class="panel-close" data-close="settingsPanel">×</button>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">啟動模式</p>
-      <p class="panel-value" id="modeValue">TurboWarp URL</p>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">TurboWarp 連結</p>
-      <p class="panel-text" id="turbowarpUrlText"></p>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">說明</p>
-      <p class="panel-text">如果之後你們把遊戲搬進自己的專案，只要把啟動模式改成 local_html 就行。</p>
-    </div>
-  </section>
-
-  <div class="launch-overlay" id="launchOverlay">
-    <div class="launch-line"></div>
-    <p class="launch-text">OPENING THE RIFT...</p>
+  <div class="transition" id="transition">
+    <div class="transition-dark"></div>
+    <div class="rift-line"></div>
+    <div class="rift-bloom"></div>
+    <p class="transition-text">THE RIFT IS OPENING</p>
   </div>
+
+  <section class="game-screen" id="gameScreen">
+    <iframe
+      id="gameFrame"
+      class="game-frame"
+      src=""
+      title="裂縫深淵 Game"
+      allowfullscreen
+    ></iframe>
+  </section>
 
   <script src="script.js"></script>
 </body>
