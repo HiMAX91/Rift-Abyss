@@ -1,108 +1,116 @@
-const CONFIG = {
-  // 可選：turbowarp_url / local_html / demo
-  gameMode: "turbowarp_url",
+document.addEventListener("DOMContentLoaded", () => {
+  const CONFIG = {
+    localGamePath: "./game/index.html",
+    revealDelay: 2200,
+    transitionFadeOutDelay: 3200
+  };
 
-  // 換成你們真正的 TurboWarp 專案網址
-  turbowarpProjectUrl: "https://turbowarp.org/123456789",
+  const launchBtn = document.getElementById("launchBtn");
+  const updateBtn = document.getElementById("updateBtn");
+  const settingsBtn = document.getElementById("settingsBtn");
+  const launcher = document.getElementById("launcher");
+  const statusText = document.getElementById("statusText");
+  const settingsPanel = document.getElementById("settingsPanel");
+  const updatePanel = document.getElementById("updatePanel");
+  const transition = document.getElementById("transition");
+  const gameScreen = document.getElementById("gameScreen");
+  const gameFrame = document.getElementById("gameFrame");
+  const gamePathText = document.getElementById("gamePathText");
+  const closeButtons = document.querySelectorAll("[data-close]");
 
-  // 之後如果搬進自己的專案，可以切到本地頁面
-  localGameUrl: "./game/index.html",
+  let isStarting = false;
 
-  launchDelay: 1800
-};
-
-const statusText = document.getElementById("statusText");
-const launchBtn = document.getElementById("launchBtn");
-const updateBtn = document.getElementById("updateBtn");
-const settingsBtn = document.getElementById("settingsBtn");
-const updatePanel = document.getElementById("updatePanel");
-const settingsPanel = document.getElementById("settingsPanel");
-const launchOverlay = document.getElementById("launchOverlay");
-const modeValue = document.getElementById("modeValue");
-const turbowarpUrlText = document.getElementById("turbowarpUrlText");
-
-let isLaunching = false;
-
-function setStatus(message) {
-  statusText.textContent = message;
-}
-
-function closeAllPanels() {
-  updatePanel.classList.remove("show");
-  settingsPanel.classList.remove("show");
-  updatePanel.setAttribute("aria-hidden", "true");
-  settingsPanel.setAttribute("aria-hidden", "true");
-}
-
-function openPanel(panel) {
-  closeAllPanels();
-  panel.classList.add("show");
-  panel.setAttribute("aria-hidden", "false");
-}
-
-function syncLauncherConfig() {
-  if (CONFIG.gameMode === "turbowarp_url") {
-    modeValue.textContent = "TurboWarp URL";
-  } else if (CONFIG.gameMode === "local_html") {
-    modeValue.textContent = "Local HTML";
-  } else {
-    modeValue.textContent = "Demo";
+  function setStatus(text) {
+    if (statusText) statusText.textContent = text;
   }
 
-  turbowarpUrlText.textContent = CONFIG.turbowarpProjectUrl;
-}
+  function closePanels() {
+    [settingsPanel, updatePanel].forEach((panel) => {
+      if (!panel) return;
+      panel.classList.remove("show");
+      panel.setAttribute("aria-hidden", "true");
+    });
+  }
 
-function openUpdates() {
-  openPanel(updatePanel);
-  setStatus("UPDATE PANEL OPENED");
-}
+  function openPanel(panel) {
+    closePanels();
+    if (!panel) return;
+    panel.classList.add("show");
+    panel.setAttribute("aria-hidden", "false");
+  }
 
-function openSettings() {
-  openPanel(settingsPanel);
-  setStatus("SETTINGS PANEL OPENED");
-}
+  function openSettings() {
+    openPanel(settingsPanel);
+    setStatus("SETTINGS PANEL OPENED");
+  }
 
-function startGame() {
-  if (isLaunching) return;
-  isLaunching = true;
+  function openUpdates() {
+    openPanel(updatePanel);
+    setStatus("NO NEW PATCHES DETECTED");
+  }
 
-  closeAllPanels();
-  setStatus("OPENING THE RIFT...");
-  launchOverlay.classList.add("show");
+  function resetLaunchState(message) {
+    if (transition) transition.classList.remove("active");
+    if (gameScreen) gameScreen.classList.remove("show");
+    if (launcher) launcher.classList.remove("hide");
+    isStarting = false;
+    setStatus(message || "SYSTEM READY");
+  }
 
-  setTimeout(() => {
-    if (CONFIG.gameMode === "turbowarp_url") {
-      window.location.href = CONFIG.turbowarpProjectUrl;
-      return;
+  function startGame() {
+    if (isStarting) return;
+    isStarting = true;
+
+    closePanels();
+    setStatus("DARKENING THE FIELD...");
+    transition.classList.add("active");
+
+    setTimeout(() => {
+      setStatus("THE RIFT IS OPENING...");
+    }, 900);
+
+    setTimeout(() => {
+      launcher.classList.add("hide");
+      gameFrame.src = CONFIG.localGamePath;
+      gameScreen.classList.add("show");
+      setStatus("LOADING IMPORTED BUILD...");
+    }, CONFIG.revealDelay);
+
+    setTimeout(() => {
+      transition.classList.remove("active");
+      setStatus("GAME STARTED");
+    }, CONFIG.transitionFadeOutDelay);
+  }
+
+  if (gameFrame) {
+    gameFrame.addEventListener("load", () => {
+      setStatus("GAME STARTED");
+    });
+  }
+
+  if (launchBtn) launchBtn.addEventListener("click", startGame);
+  if (updateBtn) updateBtn.addEventListener("click", openUpdates);
+  if (settingsBtn) settingsBtn.addEventListener("click", openSettings);
+
+  closeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      closePanels();
+      setStatus("SYSTEM READY");
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closePanels();
+      setStatus("SYSTEM READY");
     }
+  });
 
-    if (CONFIG.gameMode === "local_html") {
-      window.location.href = CONFIG.localGameUrl;
-      return;
-    }
+  if (gamePathText) {
+    gamePathText.textContent = CONFIG.localGamePath;
+  }
 
-    setStatus("DEMO MODE: TURBOWARP LINK NOT SET");
-    launchOverlay.classList.remove("show");
-    isLaunching = false;
-  }, CONFIG.launchDelay);
-}
-
-launchBtn.addEventListener("click", startGame);
-updateBtn.addEventListener("click", openUpdates);
-settingsBtn.addEventListener("click", openSettings);
-
-document.querySelectorAll("[data-close]").forEach((button) => {
-  button.addEventListener("click", () => {
-    closeAllPanels();
-    setStatus("SYSTEM READY");
+  window.addEventListener("error", () => {
+    setStatus("SCRIPT ERROR - CHECK FILE PATHS");
   });
 });
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    closeAllPanels();
-    setStatus("SYSTEM READY");
-  }
-});
-
-syncLauncherConfig();
