@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>裂縫深淵 - 動畫預覽版</title>
+  <title>裂縫深淵 - Rift Dive Preview</title>
   <style>
     :root {
       --bg: #04050a;
@@ -13,7 +13,6 @@
       --line: rgba(255, 255, 255, 0.08);
       --accent: #8f7dff;
       --accent-2: #59d8ff;
-      --danger: #ff7aa2;
     }
 
     * {
@@ -25,10 +24,10 @@
     html, body {
       width: 100%;
       height: 100%;
+      overflow: hidden;
     }
 
     body {
-      overflow: hidden;
       font-family: "Segoe UI", "Noto Sans TC", sans-serif;
       color: var(--text);
       background:
@@ -40,11 +39,19 @@
 
     .noise,
     .dark-layer,
-    .ambient,
-    .rift-stage,
-    .flash-layer {
+    .flash-layer,
+    .vignette,
+    .scene,
+    .rift-stage {
       position: fixed;
       inset: 0;
+    }
+
+    .noise,
+    .dark-layer,
+    .flash-layer,
+    .vignette,
+    .rift-stage {
       pointer-events: none;
     }
 
@@ -54,60 +61,44 @@
         linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px);
       background-size: 4px 4px;
+      z-index: 1;
     }
 
-    .ambient-a,
-    .ambient-b {
+    .scene {
+      z-index: 2;
+      transform-origin: center center;
+      transition: transform 2.2s cubic-bezier(.12,.8,.18,1), filter 1.6s ease, opacity 1.4s ease;
+    }
+
+    .ambient {
       position: absolute;
       border-radius: 50%;
       filter: blur(90px);
-      transition: transform 1.2s ease, opacity 1.2s ease;
+      transition: transform 2s ease, opacity 2s ease;
     }
 
     .ambient-a {
-      width: 280px;
-      height: 280px;
-      left: 16%;
-      top: 18%;
+      width: 300px;
+      height: 300px;
+      left: 14%;
+      top: 16%;
       background: rgba(143, 125, 255, 0.12);
     }
 
     .ambient-b {
-      width: 220px;
-      height: 220px;
-      right: 16%;
-      bottom: 16%;
+      width: 240px;
+      height: 240px;
+      right: 14%;
+      bottom: 14%;
       background: rgba(89, 216, 255, 0.08);
     }
 
-    .dark-layer {
-      background: rgba(0, 0, 0, 0);
-      transition: background 1.3s ease;
-      z-index: 5;
-    }
-
-    .flash-layer {
-      background: radial-gradient(circle at center, rgba(255,255,255,0.22), transparent 30%);
-      opacity: 0;
-      transition: opacity 0.45s ease;
-      z-index: 12;
-    }
-
     .launcher {
-      position: relative;
-      z-index: 2;
       min-height: 100vh;
       display: grid;
       place-items: center;
       padding: 32px;
-      transition: opacity 0.9s ease, transform 0.9s ease, filter 0.9s ease;
-    }
-
-    .launcher.hide {
-      opacity: 0;
-      transform: scale(1.03);
-      filter: blur(6px);
-      pointer-events: none;
+      transition: opacity 1.2s ease, transform 1.8s ease, filter 1.2s ease;
     }
 
     .launcher-inner {
@@ -194,10 +185,35 @@
       text-transform: uppercase;
     }
 
+    .dark-layer {
+      background: rgba(0, 0, 0, 0);
+      transition: background 1.3s ease;
+      z-index: 5;
+    }
+
+    .vignette {
+      z-index: 6;
+      background: radial-gradient(circle at center, transparent 35%, rgba(0,0,0,0.22) 70%, rgba(0,0,0,0.55) 100%);
+      opacity: 0.2;
+      transition: opacity 1.4s ease;
+      pointer-events: none;
+    }
+
     .rift-stage {
       z-index: 10;
       display: grid;
       place-items: center;
+    }
+
+    .rift-outer,
+    .rift-inner,
+    .rift-glow,
+    .rift-core {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 1.6s cubic-bezier(.16,.84,.2,1);
     }
 
     .rift-core {
@@ -205,73 +221,69 @@
       height: 0;
       border-radius: 999px;
       background: linear-gradient(to bottom, transparent, var(--accent-2), var(--accent), transparent);
-      box-shadow:
-        0 0 16px rgba(143, 125, 255, 1),
-        0 0 42px rgba(89, 216, 255, 0.26);
-      transition:
-        height 0.95s ease,
-        width 0.9s ease,
-        box-shadow 0.9s ease,
-        opacity 0.6s ease;
+      box-shadow: 0 0 18px rgba(143, 125, 255, 1), 0 0 40px rgba(89, 216, 255, 0.24);
       opacity: 0;
     }
 
-    .rift-aura {
-      position: absolute;
+    .rift-inner {
+      width: 0;
+      height: 0;
+      border-radius: 50% / 8%;
+      background: radial-gradient(circle at center, rgba(0,0,0,0.98) 0%, rgba(7,8,14,0.95) 45%, rgba(143,125,255,0.08) 70%, transparent 100%);
+      filter: blur(2px);
+      opacity: 0;
+    }
+
+    .rift-outer {
+      width: 0;
+      height: 0;
+      border-radius: 50% / 10%;
+      border: 1px solid rgba(89, 216, 255, 0.18);
+      box-shadow: inset 0 0 30px rgba(143, 125, 255, 0.18), 0 0 40px rgba(89, 216, 255, 0.12);
+      opacity: 0;
+    }
+
+    .rift-glow {
       width: 0;
       height: 0;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(143, 125, 255, 0.3), rgba(89, 216, 255, 0.12), transparent 70%);
-      filter: blur(22px);
-      transition: width 1s ease, height 1s ease, opacity 0.8s ease;
+      background: radial-gradient(circle, rgba(143,125,255,0.28), rgba(89,216,255,0.12), transparent 72%);
+      filter: blur(26px);
       opacity: 0;
     }
 
-    .final-message {
+    .flash-layer {
+      z-index: 12;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.18), transparent 28%);
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+    .end-cover {
       position: fixed;
       inset: 0;
-      z-index: 14;
-      display: grid;
-      place-items: center;
-      text-align: center;
+      background: #020308;
+      z-index: 20;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.8s ease;
-      padding: 32px;
-    }
-
-    .final-message.show {
-      opacity: 1;
-    }
-
-    .final-inner {
-      max-width: 760px;
-    }
-
-    .final-title {
-      font-size: clamp(28px, 4vw, 54px);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    .final-text {
-      color: var(--muted);
-      line-height: 1.9;
-      font-size: 15px;
+      transition: opacity 1s ease;
     }
 
     body.phase-dark .dark-layer {
-      background: rgba(0, 0, 0, 0.72);
+      background: rgba(0, 0, 0, 0.74);
+    }
+
+    body.phase-dark .vignette {
+      opacity: 0.72;
     }
 
     body.phase-dark .ambient-a {
-      opacity: 0.45;
+      opacity: 0.4;
       transform: scale(1.12);
     }
 
     body.phase-dark .ambient-b {
-      opacity: 0.38;
+      opacity: 0.35;
       transform: scale(1.08);
     }
 
@@ -281,21 +293,79 @@
     }
 
     body.phase-open .rift-core {
-      width: 10px;
-      height: 76vh;
-      box-shadow:
-        0 0 18px rgba(143, 125, 255, 1),
-        0 0 54px rgba(89, 216, 255, 0.35),
-        0 0 120px rgba(143, 125, 255, 0.18);
+      width: 14px;
+      height: 84vh;
+      box-shadow: 0 0 22px rgba(143, 125, 255, 1), 0 0 64px rgba(89, 216, 255, 0.38), 0 0 140px rgba(143,125,255,0.18);
     }
 
-    body.phase-open .rift-aura {
-      width: 360px;
-      height: 360px;
+    body.phase-open .rift-inner {
+      width: min(22vw, 280px);
+      height: min(86vh, 760px);
       opacity: 1;
     }
 
-    body.phase-flash .flash-layer {
+    body.phase-open .rift-outer {
+      width: min(28vw, 360px);
+      height: min(92vh, 820px);
+      opacity: 1;
+    }
+
+    body.phase-open .rift-glow {
+      width: 420px;
+      height: 420px;
+      opacity: 1;
+    }
+
+    body.phase-enter .scene {
+      transform: scale(1.55);
+      filter: blur(4px);
+    }
+
+    body.phase-enter .launcher {
+      opacity: 0;
+      transform: scale(0.94);
+      filter: blur(10px);
+    }
+
+    body.phase-enter .rift-inner {
+      width: min(44vw, 560px);
+      height: 120vh;
+    }
+
+    body.phase-enter .rift-outer {
+      width: min(54vw, 680px);
+      height: 130vh;
+    }
+
+    body.phase-enter .rift-glow {
+      width: 760px;
+      height: 760px;
+      opacity: 1;
+    }
+
+    body.phase-enter .flash-layer {
+      opacity: 1;
+    }
+
+    body.phase-fade .end-cover {
+      opacity: 1;
+    }
+
+    .hint {
+      position: fixed;
+      left: 50%;
+      bottom: 36px;
+      transform: translateX(-50%);
+      z-index: 22;
+      color: rgba(245,247,255,0.6);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .hint.show {
       opacity: 1;
     }
 
@@ -308,66 +378,67 @@
       .btn {
         width: 100%;
       }
+
+      body.phase-open .rift-inner {
+        width: 30vw;
+      }
+
+      body.phase-open .rift-outer {
+        width: 38vw;
+      }
     }
   </style>
 </head>
 <body>
   <div class="noise"></div>
+  <div class="scene" id="scene">
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
 
-  <div class="ambient">
-    <div class="ambient-a"></div>
-    <div class="ambient-b"></div>
+    <main class="launcher" id="launcher">
+      <div class="launcher-inner">
+        <p class="eyebrow">RIFT ABYSS / RIFT DIVE PREVIEW</p>
+        <h1 class="title">裂縫深淵</h1>
+        <p class="description">
+          背景先沉下去，裂縫從中間慢慢打開，
+          最後整個視角被拉進去。
+        </p>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="launchBtn">開始動畫</button>
+          <button class="btn" id="replayBtn">重新播放</button>
+        </div>
+
+        <div class="meta">
+          <span>Rift Opening</span>
+          <span>Camera Push-In</span>
+          <span>Import Later</span>
+        </div>
+
+        <p class="status" id="statusText">SYSTEM READY</p>
+      </div>
+    </main>
   </div>
 
   <div class="dark-layer"></div>
-
-  <main class="launcher" id="launcher">
-    <div class="launcher-inner">
-      <p class="eyebrow">RIFT ABYSS / ANIMATION PREVIEW</p>
-      <h1 class="title">裂縫深淵</h1>
-      <p class="description">
-        先看入口打開的那一刻，再決定遊戲怎麼進來。<br>
-        這版先專心把氣氛、節奏、裂縫感做對。
-      </p>
-
-      <div class="actions">
-        <button class="btn btn-primary" id="launchBtn">啟動遊戲</button>
-        <button class="btn" id="replayBtn">重新播放</button>
-      </div>
-
-      <div class="meta">
-        <span>Animation Preview</span>
-        <span>Horizontal Title</span>
-        <span>Import Later</span>
-      </div>
-
-      <p class="status" id="statusText">SYSTEM READY</p>
-    </div>
-  </main>
+  <div class="vignette"></div>
 
   <div class="rift-stage">
-    <div class="rift-aura" id="riftAura"></div>
-    <div class="rift-core" id="riftCore"></div>
+    <div class="rift-glow"></div>
+    <div class="rift-outer"></div>
+    <div class="rift-inner"></div>
+    <div class="rift-core"></div>
   </div>
 
   <div class="flash-layer"></div>
-
-  <section class="final-message" id="finalMessage">
-    <div class="final-inner">
-      <h2 class="final-title">THE RIFT HAS OPENED</h2>
-      <p class="final-text">
-        這裡就是之後接遊戲的地方。<br>
-        等你確認動畫 OK，我下一步就幫你把匯入的遊戲檔接到這一刻後面。
-      </p>
-    </div>
-  </section>
+  <div class="end-cover" id="endCover"></div>
+  <div class="hint" id="hint">動畫結束後，下一步就能接遊戲畫面</div>
 
   <script>
     const launchBtn = document.getElementById('launchBtn');
     const replayBtn = document.getElementById('replayBtn');
-    const launcher = document.getElementById('launcher');
     const statusText = document.getElementById('statusText');
-    const finalMessage = document.getElementById('finalMessage');
+    const hint = document.getElementById('hint');
 
     let timers = [];
     let isPlaying = false;
@@ -376,24 +447,22 @@
       statusText.textContent = text;
     }
 
+    function schedule(callback, delay) {
+      const timer = setTimeout(callback, delay);
+      timers.push(timer);
+    }
+
     function clearAllTimers() {
-      timers.forEach(timer => clearTimeout(timer));
+      timers.forEach(clearTimeout);
       timers = [];
     }
 
     function resetAnimation() {
       clearAllTimers();
       isPlaying = false;
-
-      document.body.classList.remove('phase-dark', 'phase-rift', 'phase-open', 'phase-flash');
-      launcher.classList.remove('hide');
-      finalMessage.classList.remove('show');
+      hint.classList.remove('show');
+      document.body.classList.remove('phase-dark', 'phase-rift', 'phase-open', 'phase-enter', 'phase-fade');
       setStatus('SYSTEM READY');
-    }
-
-    function schedule(callback, delay) {
-      const timer = setTimeout(callback, delay);
-      timers.push(timer);
     }
 
     function playAnimation() {
@@ -406,25 +475,28 @@
 
       schedule(() => {
         setStatus('THE RIFT IS FORMING...');
-        launcher.classList.add('hide');
         document.body.classList.add('phase-rift');
-      }, 1200);
+      }, 1100);
 
       schedule(() => {
         setStatus('THE RIFT IS OPENING...');
         document.body.classList.add('phase-open');
-      }, 2400);
+      }, 2300);
 
       schedule(() => {
-        document.body.classList.add('phase-flash');
-      }, 3450);
+        setStatus('ENTERING THE RIFT...');
+        document.body.classList.add('phase-enter');
+      }, 3800);
 
       schedule(() => {
-        document.body.classList.remove('phase-flash');
-        finalMessage.classList.add('show');
-        setStatus('ENTRY READY');
+        document.body.classList.add('phase-fade');
+      }, 5000);
+
+      schedule(() => {
+        setStatus('ENTRY COMPLETE');
+        hint.classList.add('show');
         isPlaying = false;
-      }, 3950);
+      }, 5900);
     }
 
     launchBtn.addEventListener('click', playAnimation);
