@@ -276,9 +276,7 @@ body {
   width: 2px;
   height: 0;
   background: linear-gradient(to bottom, transparent, var(--accent-2), var(--accent), transparent);
-  box-shadow:
-    0 0 16px rgba(141, 125, 255, 1),
-    0 0 42px rgba(89, 216, 255, 0.24);
+  box-shadow: 0 0 16px rgba(141, 125, 255, 1), 0 0 42px rgba(89, 216, 255, 0.24);
   transition: height 0.9s ease 0.8s, width 0.8s ease 1.6s;
 }
 
@@ -322,7 +320,7 @@ body {
 .game-screen {
   position: fixed;
   inset: 0;
-  z-index: 15;
+  z-index: 30;
   background: #000;
   opacity: 0;
   pointer-events: none;
