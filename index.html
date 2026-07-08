@@ -3,95 +3,432 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>裂縫深淵 Launcher</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>裂縫深淵 - 動畫預覽版</title>
+  <style>
+    :root {
+      --bg: #04050a;
+      --bg-2: #0b0f18;
+      --text: #f5f7ff;
+      --muted: rgba(245, 247, 255, 0.66);
+      --line: rgba(255, 255, 255, 0.08);
+      --accent: #8f7dff;
+      --accent-2: #59d8ff;
+      --danger: #ff7aa2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at center, rgba(89, 216, 255, 0.05), transparent 18%),
+        radial-gradient(circle at center, rgba(143, 125, 255, 0.08), transparent 30%),
+        linear-gradient(180deg, var(--bg), var(--bg-2) 48%, var(--bg));
+      position: relative;
+    }
+
+    .noise,
+    .dark-layer,
+    .ambient,
+    .rift-stage,
+    .flash-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .noise {
+      opacity: 0.03;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px);
+      background-size: 4px 4px;
+    }
+
+    .ambient-a,
+    .ambient-b {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      transition: transform 1.2s ease, opacity 1.2s ease;
+    }
+
+    .ambient-a {
+      width: 280px;
+      height: 280px;
+      left: 16%;
+      top: 18%;
+      background: rgba(143, 125, 255, 0.12);
+    }
+
+    .ambient-b {
+      width: 220px;
+      height: 220px;
+      right: 16%;
+      bottom: 16%;
+      background: rgba(89, 216, 255, 0.08);
+    }
+
+    .dark-layer {
+      background: rgba(0, 0, 0, 0);
+      transition: background 1.3s ease;
+      z-index: 5;
+    }
+
+    .flash-layer {
+      background: radial-gradient(circle at center, rgba(255,255,255,0.22), transparent 30%);
+      opacity: 0;
+      transition: opacity 0.45s ease;
+      z-index: 12;
+    }
+
+    .launcher {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      transition: opacity 0.9s ease, transform 0.9s ease, filter 0.9s ease;
+    }
+
+    .launcher.hide {
+      opacity: 0;
+      transform: scale(1.03);
+      filter: blur(6px);
+      pointer-events: none;
+    }
+
+    .launcher-inner {
+      width: min(920px, 100%);
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-size: clamp(56px, 10vw, 132px);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 26px rgba(143, 125, 255, 0.16);
+    }
+
+    .description {
+      max-width: 720px;
+      margin: 20px auto 0;
+      font-size: 15px;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    .actions {
+      margin-top: 32px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      min-width: 160px;
+      padding: 14px 24px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(143, 125, 255, 0.35);
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 0 20px rgba(143, 125, 255, 0.12);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, rgba(143, 125, 255, 0.16), rgba(255,255,255,0.04));
+      border-color: rgba(143, 125, 255, 0.28);
+    }
+
+    .meta {
+      margin-top: 22px;
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .status {
+      margin-top: 18px;
+      min-height: 22px;
+      color: rgba(89, 216, 255, 0.92);
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .rift-stage {
+      z-index: 10;
+      display: grid;
+      place-items: center;
+    }
+
+    .rift-core {
+      width: 2px;
+      height: 0;
+      border-radius: 999px;
+      background: linear-gradient(to bottom, transparent, var(--accent-2), var(--accent), transparent);
+      box-shadow:
+        0 0 16px rgba(143, 125, 255, 1),
+        0 0 42px rgba(89, 216, 255, 0.26);
+      transition:
+        height 0.95s ease,
+        width 0.9s ease,
+        box-shadow 0.9s ease,
+        opacity 0.6s ease;
+      opacity: 0;
+    }
+
+    .rift-aura {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(143, 125, 255, 0.3), rgba(89, 216, 255, 0.12), transparent 70%);
+      filter: blur(22px);
+      transition: width 1s ease, height 1s ease, opacity 0.8s ease;
+      opacity: 0;
+    }
+
+    .final-message {
+      position: fixed;
+      inset: 0;
+      z-index: 14;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+      padding: 32px;
+    }
+
+    .final-message.show {
+      opacity: 1;
+    }
+
+    .final-inner {
+      max-width: 760px;
+    }
+
+    .final-title {
+      font-size: clamp(28px, 4vw, 54px);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .final-text {
+      color: var(--muted);
+      line-height: 1.9;
+      font-size: 15px;
+    }
+
+    body.phase-dark .dark-layer {
+      background: rgba(0, 0, 0, 0.72);
+    }
+
+    body.phase-dark .ambient-a {
+      opacity: 0.45;
+      transform: scale(1.12);
+    }
+
+    body.phase-dark .ambient-b {
+      opacity: 0.38;
+      transform: scale(1.08);
+    }
+
+    body.phase-rift .rift-core {
+      opacity: 1;
+      height: 62vh;
+    }
+
+    body.phase-open .rift-core {
+      width: 10px;
+      height: 76vh;
+      box-shadow:
+        0 0 18px rgba(143, 125, 255, 1),
+        0 0 54px rgba(89, 216, 255, 0.35),
+        0 0 120px rgba(143, 125, 255, 0.18);
+    }
+
+    body.phase-open .rift-aura {
+      width: 360px;
+      height: 360px;
+      opacity: 1;
+    }
+
+    body.phase-flash .flash-layer {
+      opacity: 1;
+    }
+
+    @media (max-width: 700px) {
+      .actions {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="noise"></div>
-  <div class="ambient ambient-a"></div>
-  <div class="ambient ambient-b"></div>
+
+  <div class="ambient">
+    <div class="ambient-a"></div>
+    <div class="ambient-b"></div>
+  </div>
+
+  <div class="dark-layer"></div>
 
   <main class="launcher" id="launcher">
     <div class="launcher-inner">
-      <p class="eyebrow">RIFT ABYSS / LAUNCHER</p>
+      <p class="eyebrow">RIFT ABYSS / ANIMATION PREVIEW</p>
       <h1 class="title">裂縫深淵</h1>
       <p class="description">
-        真正的入口不需要喧鬧，
-        只需要一道足夠深的裂縫，讓人願意走進去。
+        先看入口打開的那一刻，再決定遊戲怎麼進來。<br>
+        這版先專心把氣氛、節奏、裂縫感做對。
       </p>
 
       <div class="actions">
         <button class="btn btn-primary" id="launchBtn">啟動遊戲</button>
-        <button class="btn" id="updateBtn">查看更新</button>
-        <button class="btn" id="settingsBtn">設定</button>
+        <button class="btn" id="replayBtn">重新播放</button>
       </div>
 
       <div class="meta">
-        <span>Version 1.0.0</span>
-        <span>Imported Build</span>
-        <span>Minimal Mode</span>
+        <span>Animation Preview</span>
+        <span>Horizontal Title</span>
+        <span>Import Later</span>
       </div>
 
       <p class="status" id="statusText">SYSTEM READY</p>
     </div>
   </main>
 
-  <section class="panel" id="settingsPanel" aria-hidden="true">
-    <div class="panel-head">
-      <h2>啟動設定</h2>
-      <button class="panel-close" data-close="settingsPanel">×</button>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">遊戲載入方式</p>
-      <p class="panel-value">本地匯入檔案</p>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">遊戲檔路徑</p>
-      <p class="panel-text" id="gamePathText"></p>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">說明</p>
-      <p class="panel-text">按下啟動後，會先播放黑場與裂縫打開動畫，再顯示已匯入的遊戲。</p>
-    </div>
-  </section>
-
-  <section class="panel" id="updatePanel" aria-hidden="true">
-    <div class="panel-head">
-      <h2>更新資訊</h2>
-      <button class="panel-close" data-close="updatePanel">×</button>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">目前版本</p>
-      <p class="panel-value">1.0.0</p>
-    </div>
-
-    <div class="panel-block">
-      <p class="panel-label">目前狀態</p>
-      <p class="panel-text">展示版啟動器已完成，可直接載入匯入的遊戲檔。</p>
-    </div>
-  </section>
-
-  <div class="transition" id="transition">
-    <div class="transition-dark"></div>
-    <div class="rift-line"></div>
-    <div class="rift-bloom"></div>
-    <p class="transition-text">THE RIFT IS OPENING</p>
+  <div class="rift-stage">
+    <div class="rift-aura" id="riftAura"></div>
+    <div class="rift-core" id="riftCore"></div>
   </div>
 
-  <section class="game-screen" id="gameScreen">
-    <iframe
-      id="gameFrame"
-      class="game-frame"
-      src=""
-      title="裂縫深淵 Game"
-      allowfullscreen
-    ></iframe>
+  <div class="flash-layer"></div>
+
+  <section class="final-message" id="finalMessage">
+    <div class="final-inner">
+      <h2 class="final-title">THE RIFT HAS OPENED</h2>
+      <p class="final-text">
+        這裡就是之後接遊戲的地方。<br>
+        等你確認動畫 OK，我下一步就幫你把匯入的遊戲檔接到這一刻後面。
+      </p>
+    </div>
   </section>
 
-  <script src="script.js"></script>
+  <script>
+    const launchBtn = document.getElementById('launchBtn');
+    const replayBtn = document.getElementById('replayBtn');
+    const launcher = document.getElementById('launcher');
+    const statusText = document.getElementById('statusText');
+    const finalMessage = document.getElementById('finalMessage');
+
+    let timers = [];
+    let isPlaying = false;
+
+    function setStatus(text) {
+      statusText.textContent = text;
+    }
+
+    function clearAllTimers() {
+      timers.forEach(timer => clearTimeout(timer));
+      timers = [];
+    }
+
+    function resetAnimation() {
+      clearAllTimers();
+      isPlaying = false;
+
+      document.body.classList.remove('phase-dark', 'phase-rift', 'phase-open', 'phase-flash');
+      launcher.classList.remove('hide');
+      finalMessage.classList.remove('show');
+      setStatus('SYSTEM READY');
+    }
+
+    function schedule(callback, delay) {
+      const timer = setTimeout(callback, delay);
+      timers.push(timer);
+    }
+
+    function playAnimation() {
+      if (isPlaying) return;
+      resetAnimation();
+      isPlaying = true;
+
+      setStatus('DARKENING THE FIELD...');
+      document.body.classList.add('phase-dark');
+
+      schedule(() => {
+        setStatus('THE RIFT IS FORMING...');
+        launcher.classList.add('hide');
+        document.body.classList.add('phase-rift');
+      }, 1200);
+
+      schedule(() => {
+        setStatus('THE RIFT IS OPENING...');
+        document.body.classList.add('phase-open');
+      }, 2400);
+
+      schedule(() => {
+        document.body.classList.add('phase-flash');
+      }, 3450);
+
+      schedule(() => {
+        document.body.classList.remove('phase-flash');
+        finalMessage.classList.add('show');
+        setStatus('ENTRY READY');
+        isPlaying = false;
+      }, 3950);
+    }
+
+    launchBtn.addEventListener('click', playAnimation);
+    replayBtn.addEventListener('click', resetAnimation);
+  </script>
 </body>
 </html>
