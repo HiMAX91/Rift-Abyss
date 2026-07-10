@@ -173,6 +173,82 @@
       text-transform: uppercase;
     }
 
+    .panel {
+      position: fixed;
+      right: 28px;
+      bottom: 28px;
+      width: min(360px, calc(100vw - 32px));
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(10, 14, 25, 0.84);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.35);
+      opacity: 0;
+      transform: translateY(18px);
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 30;
+    }
+
+    .panel.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .panel-head h2 {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-close {
+      background: transparent;
+      border: none;
+      color: rgba(245,247,255,0.7);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .panel-block {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .panel-block + .panel-block {
+      margin-top: 10px;
+    }
+
+    .panel-label {
+      color: rgba(245,247,255,0.58);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .panel-value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .panel-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
     .dark-layer {
       z-index: 5;
       background: rgba(0, 0, 0, 0);
@@ -198,10 +274,10 @@
       transform-origin: center center;
     }
 
-    .rift-beam,
     .rift-core,
     .rift-glow,
-    .rift-aura {
+    .rift-aura,
+    .rift-beam {
       position: absolute;
       left: 50%;
       top: 50%;
@@ -209,16 +285,15 @@
       border-radius: 999px;
     }
 
-    /* 初始就先看得到細裂縫 */
     .rift-beam {
       width: 2px;
       height: 78vh;
       background: linear-gradient(
         to bottom,
         transparent,
-        rgba(84, 216, 255, 0.78),
+        rgba(84, 216, 255, 0.85),
         rgba(143, 125, 255, 1),
-        rgba(84, 216, 255, 0.78),
+        rgba(84, 216, 255, 0.85),
         transparent
       );
       opacity: 0.52;
@@ -286,7 +361,6 @@
       opacity: 1;
     }
 
-    /* 一條時間軸：先浮起來，再打開，再吞滿 */
     body.playing .dark-layer {
       animation: darken var(--duration) linear forwards;
     }
@@ -557,6 +631,13 @@
       .title {
         font-size: 74px;
       }
+
+      .panel {
+        left: 16px;
+        right: 16px;
+        width: auto;
+        bottom: 16px;
+      }
     }
   </style>
 </head>
@@ -576,6 +657,8 @@
 
         <div class="actions">
           <button class="btn btn-primary" id="launchBtn">開始動畫</button>
+          <button class="btn" id="updateBtn">查看更新</button>
+          <button class="btn" id="settingsBtn">設定</button>
           <button class="btn" id="replayBtn">重新播放</button>
         </div>
 
@@ -589,6 +672,40 @@
       </div>
     </main>
   </div>
+
+  <section class="panel" id="updatePanel" aria-hidden="true">
+    <div class="panel-head">
+      <h2>更新資訊</h2>
+      <button class="panel-close" data-close="updatePanel">×</button>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">目前版本</p>
+      <p class="panel-value">1.0.0</p>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">目前狀態</p>
+      <p class="panel-text">目前是動畫預覽版。等你確認動畫 OK，我再幫你把匯入的遊戲檔接進來。</p>
+    </div>
+  </section>
+
+  <section class="panel" id="settingsPanel" aria-hidden="true">
+    <div class="panel-head">
+      <h2>啟動設定</h2>
+      <button class="panel-close" data-close="settingsPanel">×</button>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">目前模式</p>
+      <p class="panel-value">Animation Preview</p>
+    </div>
+
+    <div class="panel-block">
+      <p class="panel-label">下一步</p>
+      <p class="panel-text">可以把這版動畫直接接到本地匯入的遊戲檔，做成真正的啟動器流程。</p>
+    </div>
+  </section>
 
   <div class="dark-layer"></div>
   <div class="vignette"></div>
@@ -608,10 +725,15 @@
 
   <script>
     const launchBtn = document.getElementById('launchBtn');
+    const updateBtn = document.getElementById('updateBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
     const replayBtn = document.getElementById('replayBtn');
     const statusText = document.getElementById('statusText');
     const hint = document.getElementById('hint');
     const body = document.body;
+    const updatePanel = document.getElementById('updatePanel');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const closeButtons = document.querySelectorAll('[data-close]');
 
     let endTimer = null;
     let playing = false;
@@ -620,11 +742,27 @@
       statusText.textContent = text;
     }
 
+    function closePanels() {
+      [updatePanel, settingsPanel].forEach((panel) => {
+        panel.classList.remove('show');
+        panel.setAttribute('aria-hidden', 'true');
+      });
+    }
+
+    function openPanel(panel, status) {
+      if (playing) return;
+      closePanels();
+      panel.classList.add('show');
+      panel.setAttribute('aria-hidden', 'false');
+      setStatus(status);
+    }
+
     function resetAnimation() {
       if (endTimer) clearTimeout(endTimer);
       playing = false;
       hint.classList.remove('show');
       body.classList.remove('playing');
+      closePanels();
 
       void body.offsetWidth;
 
@@ -647,6 +785,22 @@
 
     launchBtn.addEventListener('click', playAnimation);
     replayBtn.addEventListener('click', resetAnimation);
+    updateBtn.addEventListener('click', () => openPanel(updatePanel, 'UPDATE PANEL OPENED'));
+    settingsBtn.addEventListener('click', () => openPanel(settingsPanel, 'SETTINGS PANEL OPENED'));
+
+    closeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        closePanels();
+        setStatus('SYSTEM READY');
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closePanels();
+        if (!playing) setStatus('SYSTEM READY');
+      }
+    });
   </script>
 </body>
 </html>
