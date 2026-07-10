@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>裂縫深淵 - Rift Dive Preview</title>
+  <title>裂縫深淵 Launcher</title>
   <style>
     :root {
-      --bg: #04050a;
+      --bg: #06070d;
       --bg-2: #0b0f18;
       --text: #f5f7ff;
-      --muted: rgba(245, 247, 255, 0.66);
+      --muted: rgba(245, 247, 255, 0.72);
       --line: rgba(255, 255, 255, 0.08);
       --accent: #8f7dff;
-      --accent-2: #59d8ff;
+      --accent-2: #54d8ff;
     }
 
     * {
@@ -32,19 +32,19 @@
       font-family: "Segoe UI", "Noto Sans TC", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at center, rgba(89, 216, 255, 0.05), transparent 18%),
-        radial-gradient(circle at center, rgba(143, 125, 255, 0.08), transparent 30%),
-        linear-gradient(180deg, var(--bg), var(--bg-2) 48%, var(--bg));
+        radial-gradient(circle at 50% 50%, rgba(84, 216, 255, 0.04), transparent 16%),
+        radial-gradient(circle at 50% 50%, rgba(143, 125, 255, 0.07), transparent 28%),
+        linear-gradient(180deg, #05060a 0%, #090c14 48%, #05060a 100%);
       position: relative;
     }
 
     .noise,
     .dark-layer,
     .flash-layer,
+    .end-cover,
     .vignette,
-    .scene,
-    .rift-stage,
-    .end-cover {
+    .rift-wrap,
+    .scene {
       position: fixed;
       inset: 0;
     }
@@ -52,19 +52,19 @@
     .noise,
     .dark-layer,
     .flash-layer,
+    .end-cover,
     .vignette,
-    .rift-stage,
-    .end-cover {
+    .rift-wrap {
       pointer-events: none;
     }
 
     .noise {
-      opacity: 0.03;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px);
-      background-size: 4px 4px;
       z-index: 1;
+      opacity: 0.025;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
+      background-size: 4px 4px;
     }
 
     .scene {
@@ -72,72 +72,58 @@
       transform-origin: center center;
     }
 
-    .ambient {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(90px);
-      transition: transform 2s ease, opacity 2s ease;
-    }
-
-    .ambient-a {
-      width: 300px;
-      height: 300px;
-      left: 14%;
-      top: 16%;
-      background: rgba(143, 125, 255, 0.12);
-    }
-
-    .ambient-b {
-      width: 240px;
-      height: 240px;
-      right: 14%;
-      bottom: 14%;
-      background: rgba(89, 216, 255, 0.08);
-    }
-
     .launcher {
       min-height: 100vh;
       display: grid;
       place-items: center;
       padding: 32px;
-      transition: opacity 1.2s ease, transform 1.4s ease, filter 1.2s ease;
+      transition: opacity 1s ease, transform 1.2s ease, filter 1s ease;
     }
 
     .launcher-inner {
-      width: min(920px, 100%);
+      width: min(980px, 100%);
       text-align: center;
+      position: relative;
+      z-index: 3;
     }
 
     .eyebrow {
       font-size: 11px;
       letter-spacing: 0.42em;
       text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 18px;
+      color: rgba(245, 247, 255, 0.56);
+      margin-bottom: 22px;
     }
 
     .title {
-      font-size: clamp(56px, 10vw, 132px);
-      line-height: 1;
+      font-size: clamp(62px, 11vw, 146px);
+      line-height: 0.92;
       font-weight: 900;
-      letter-spacing: 0.12em;
-      text-shadow: 0 0 26px rgba(143, 125, 255, 0.16);
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 26px rgba(143, 125, 255, 0.08);
+    }
+
+    .divider {
+      width: min(460px, 72vw);
+      height: 1px;
+      margin: 18px auto 22px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.16), transparent);
     }
 
     .description {
-      max-width: 720px;
-      margin: 20px auto 0;
+      max-width: 860px;
+      margin: 0 auto;
       font-size: 15px;
       line-height: 1.9;
-      color: var(--muted);
+      color: rgba(245, 247, 255, 0.68);
     }
 
     .actions {
-      margin-top: 32px;
+      margin-top: 34px;
       display: flex;
       gap: 14px;
-      flex-wrap: wrap;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -151,14 +137,14 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       cursor: pointer;
-      transition: 0.25s ease;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
     }
 
     .btn:hover {
       transform: translateY(-2px);
-      border-color: rgba(143, 125, 255, 0.35);
+      border-color: rgba(143, 125, 255, 0.28);
       background: rgba(255,255,255,0.05);
-      box-shadow: 0 0 20px rgba(143, 125, 255, 0.12);
+      box-shadow: 0 0 18px rgba(143, 125, 255, 0.1);
     }
 
     .btn-primary {
@@ -167,160 +153,137 @@
     }
 
     .meta {
-      margin-top: 22px;
+      margin-top: 28px;
       display: flex;
       gap: 18px;
-      flex-wrap: wrap;
       justify-content: center;
-      color: var(--muted);
+      flex-wrap: wrap;
+      color: rgba(245, 247, 255, 0.54);
       font-size: 12px;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
     }
 
     .status {
-      margin-top: 18px;
-      min-height: 22px;
-      color: rgba(89, 216, 255, 0.92);
+      margin-top: 24px;
+      min-height: 20px;
+      color: rgba(84, 216, 255, 0.9);
       font-size: 13px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
     .dark-layer {
+      z-index: 5;
       background: rgba(0, 0, 0, 0);
       transition: background 1.4s ease;
-      z-index: 5;
     }
 
     .vignette {
       z-index: 6;
-      background: radial-gradient(circle at center, transparent 35%, rgba(0,0,0,0.22) 70%, rgba(0,0,0,0.55) 100%);
+      background: radial-gradient(circle at center, transparent 34%, rgba(0,0,0,0.18) 68%, rgba(0,0,0,0.46) 100%);
       opacity: 0.2;
       transition: opacity 1.4s ease;
     }
 
-    .rift-stage {
-      z-index: 10;
+    .rift-wrap {
+      z-index: 7;
       display: grid;
       place-items: center;
     }
 
-    .rift-outer,
-    .rift-inner,
+    .rift {
+      position: relative;
+      width: 220px;
+      height: 86vh;
+      transform: rotate(8deg);
+      transform-origin: center center;
+    }
+
+    .rift-core,
     .rift-glow,
-    .rift-core {
+    .rift-aura,
+    .rift-beam {
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-    }
-
-    .rift-core {
-      width: 2px;
-      height: 0;
       border-radius: 999px;
-      background: linear-gradient(to bottom, transparent, var(--accent-2), var(--accent), transparent);
-      box-shadow: 0 0 18px rgba(143, 125, 255, 1), 0 0 40px rgba(89, 216, 255, 0.24);
-      opacity: 0;
-      transition: height 1.2s ease, width 1.2s ease, opacity 0.6s ease, box-shadow 1.2s ease;
     }
 
-    .rift-inner,
-    .rift-outer {
-      opacity: 0;
+    .rift-beam {
+      width: 2px;
       height: 78vh;
-      transform: translate(-50%, -50%) scaleX(0.04);
-      transform-origin: center center;
-    }
-
-    .rift-inner {
-      width: 220px;
-      background: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(7,8,14,0.98) 58%, rgba(0,0,0,0.2) 100%);
-      clip-path: polygon(
-        50% 0%,
-        56% 8%,
-        53% 18%,
-        60% 34%,
-        54% 50%,
-        62% 68%,
-        56% 84%,
-        60% 100%,
-        40% 100%,
-        44% 84%,
-        38% 68%,
-        46% 50%,
-        40% 34%,
-        47% 18%,
-        44% 8%,
-        50% 0%
-      );
-      filter: blur(3px);
-      transition: transform 1.4s ease, opacity 1s ease;
-    }
-
-    .rift-outer {
-      width: 300px;
       background: linear-gradient(
         to bottom,
         transparent,
-        rgba(89, 216, 255, 0.16),
-        rgba(143, 125, 255, 0.28),
-        rgba(89, 216, 255, 0.16),
+        rgba(84, 216, 255, 0.85),
+        rgba(143, 125, 255, 1),
+        rgba(84, 216, 255, 0.85),
         transparent
       );
-      clip-path: polygon(
-        50% 0%,
-        58% 8%,
-        55% 18%,
-        64% 34%,
-        58% 50%,
-        66% 68%,
-        60% 84%,
-        64% 100%,
-        36% 100%,
-        40% 84%,
-        34% 68%,
-        42% 50%,
-        36% 34%,
-        45% 18%,
-        42% 8%,
-        50% 0%
-      );
-      filter: blur(10px);
-      transition: transform 1.4s ease, opacity 1s ease;
+      opacity: 0.32;
+      filter: blur(0.4px);
+      transition: opacity 0.9s ease, width 1s ease, box-shadow 1s ease;
+    }
+
+    .rift-core {
+      width: 0px;
+      height: 78vh;
+      background: linear-gradient(to bottom, rgba(5, 6, 10, 0.98), rgba(2, 3, 6, 1), rgba(5, 6, 10, 0.98));
+      box-shadow:
+        0 0 0 1px rgba(84, 216, 255, 0.12),
+        0 0 14px rgba(84, 216, 255, 0.14),
+        0 0 22px rgba(143, 125, 255, 0.12);
+      opacity: 0;
+      transition: width 1.45s ease, opacity 0.8s ease, box-shadow 1.45s ease;
     }
 
     .rift-glow {
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(143,125,255,0.28), rgba(89,216,255,0.12), transparent 72%);
-      filter: blur(26px);
+      width: 20px;
+      height: 78vh;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(84, 216, 255, 0.18),
+        rgba(143, 125, 255, 0.22),
+        rgba(84, 216, 255, 0.18),
+        transparent
+      );
+      filter: blur(10px);
+      opacity: 0;
+      transition: width 1.45s ease, opacity 1s ease;
+    }
+
+    .rift-aura {
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(143,125,255,0.18), rgba(84,216,255,0.08), transparent 72%);
+      filter: blur(28px);
       opacity: 0;
       transition: width 1.5s ease, height 1.5s ease, opacity 1s ease;
     }
 
     .flash-layer {
-      z-index: 12;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.18), transparent 28%);
+      z-index: 10;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.14), transparent 28%);
       opacity: 0;
     }
 
     .end-cover {
-      background: #020308;
       z-index: 20;
+      background: #020308;
       opacity: 0;
-      transition: opacity 0.7s ease;
+      transition: opacity 0.75s ease;
     }
 
     .hint {
       position: fixed;
       left: 50%;
-      bottom: 36px;
+      bottom: 38px;
       transform: translateX(-50%);
       z-index: 22;
-      color: rgba(245,247,255,0.6);
+      color: rgba(245,247,255,0.58);
       font-size: 12px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
@@ -333,74 +296,69 @@
     }
 
     body.phase-dark .dark-layer {
-      background: rgba(0, 0, 0, 0.74);
+      background: rgba(0, 0, 0, 0.7);
     }
 
     body.phase-dark .vignette {
-      opacity: 0.72;
+      opacity: 0.74;
     }
 
-    body.phase-dark .ambient-a {
-      opacity: 0.4;
-      transform: scale(1.12);
-    }
-
-    body.phase-dark .ambient-b {
-      opacity: 0.35;
-      transform: scale(1.08);
-    }
-
-    body.phase-rift .rift-core {
-      opacity: 1;
-      height: 62vh;
+    body.phase-form .rift-beam {
+      opacity: 0.9;
+      box-shadow:
+        0 0 16px rgba(84, 216, 255, 0.5),
+        0 0 36px rgba(143, 125, 255, 0.24);
     }
 
     body.phase-open .launcher {
-      opacity: 0.18;
-      transform: scale(0.98);
+      opacity: 0.16;
+      transform: scale(0.985);
       filter: blur(2px);
     }
 
-    body.phase-open .rift-core {
-      width: 10px;
-      height: 84vh;
-      box-shadow: 0 0 22px rgba(143, 125, 255, 1), 0 0 64px rgba(89, 216, 255, 0.38), 0 0 140px rgba(143,125,255,0.18);
-    }
-
-    body.phase-open .rift-inner {
+    body.phase-open .rift-beam {
       opacity: 1;
-      transform: translate(-50%, -50%) scaleX(0.55);
+      width: 4px;
     }
 
-    body.phase-open .rift-outer {
-      opacity: 0.9;
-      transform: translate(-50%, -50%) scaleX(0.85);
+    body.phase-open .rift-core {
+      width: 34px;
+      opacity: 1;
+      box-shadow:
+        0 0 0 1px rgba(84, 216, 255, 0.16),
+        0 0 22px rgba(84, 216, 255, 0.18),
+        0 0 34px rgba(143, 125, 255, 0.16);
     }
 
     body.phase-open .rift-glow {
-      width: 320px;
-      height: 420px;
+      width: 72px;
+      opacity: 1;
+    }
+
+    body.phase-open .rift-aura {
+      width: 240px;
+      height: 440px;
       opacity: 1;
     }
 
     body.phase-enter .scene {
-      animation: diveScene 1800ms cubic-bezier(.55, .08, .88, .32) forwards;
+      animation: diveScene 1900ms cubic-bezier(.58, .08, .88, .32) forwards;
     }
 
     body.phase-enter .launcher {
       animation: diveLauncher 1200ms ease forwards;
     }
 
-    body.phase-enter .rift-inner {
-      animation: diveRiftInner 1800ms cubic-bezier(.55, .08, .88, .32) forwards;
-    }
-
-    body.phase-enter .rift-outer {
-      animation: diveRiftOuter 1800ms cubic-bezier(.55, .08, .88, .32) forwards;
+    body.phase-enter .rift-core {
+      animation: diveRiftCore 1900ms cubic-bezier(.58, .08, .88, .32) forwards;
     }
 
     body.phase-enter .rift-glow {
-      animation: diveRiftGlow 1800ms cubic-bezier(.55, .08, .88, .32) forwards;
+      animation: diveRiftGlow 1900ms cubic-bezier(.58, .08, .88, .32) forwards;
+    }
+
+    body.phase-enter .rift-aura {
+      animation: diveRiftAura 1900ms cubic-bezier(.58, .08, .88, .32) forwards;
     }
 
     body.phase-enter .flash-layer {
@@ -425,81 +383,79 @@
         filter: blur(1px);
       }
       72% {
-        transform: scale(1.28);
+        transform: scale(1.26);
         filter: blur(3px);
       }
       100% {
-        transform: scale(1.8);
+        transform: scale(1.78);
         filter: blur(8px);
       }
     }
 
     @keyframes diveLauncher {
       0% {
-        opacity: 0.18;
-        transform: scale(0.98);
+        opacity: 0.16;
+        transform: scale(0.985);
         filter: blur(2px);
       }
       100% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.92);
         filter: blur(10px);
       }
     }
 
-    @keyframes diveRiftInner {
+    @keyframes diveRiftCore {
       0% {
-        transform: translate(-50%, -50%) scaleX(0.55);
+        width: 34px;
         opacity: 1;
       }
-      25% {
-        transform: translate(-50%, -50%) scaleX(0.62);
+      24% {
+        width: 40px;
       }
       55% {
-        transform: translate(-50%, -50%) scaleX(0.9) scaleY(1.06);
+        width: 74px;
       }
       100% {
-        transform: translate(-50%, -50%) scaleX(1.9) scaleY(1.42);
-        opacity: 1;
-      }
-    }
-
-    @keyframes diveRiftOuter {
-      0% {
-        transform: translate(-50%, -50%) scaleX(0.85);
-        opacity: 0.9;
-      }
-      25% {
-        transform: translate(-50%, -50%) scaleX(0.95);
-      }
-      55% {
-        transform: translate(-50%, -50%) scaleX(1.22) scaleY(1.08);
-      }
-      100% {
-        transform: translate(-50%, -50%) scaleX(2.4) scaleY(1.5);
+        width: 180px;
         opacity: 1;
       }
     }
 
     @keyframes diveRiftGlow {
       0% {
-        width: 320px;
-        height: 420px;
+        width: 72px;
         opacity: 1;
       }
-      30% {
-        width: 360px;
-        height: 470px;
-        opacity: 1;
+      28% {
+        width: 88px;
       }
-      65% {
-        width: 520px;
-        height: 680px;
-        opacity: 1;
+      60% {
+        width: 140px;
       }
       100% {
-        width: 780px;
-        height: 980px;
+        width: 340px;
+        opacity: 1;
+      }
+    }
+
+    @keyframes diveRiftAura {
+      0% {
+        width: 240px;
+        height: 440px;
+        opacity: 1;
+      }
+      35% {
+        width: 280px;
+        height: 500px;
+      }
+      65% {
+        width: 420px;
+        height: 680px;
+      }
+      100% {
+        width: 760px;
+        height: 1100px;
         opacity: 1;
       }
     }
@@ -508,7 +464,7 @@
       0% {
         opacity: 0;
       }
-      55% {
+      56% {
         opacity: 0;
       }
       100% {
@@ -525,6 +481,10 @@
       .btn {
         width: 100%;
       }
+
+      .title {
+        font-size: 74px;
+      }
     }
   </style>
 </head>
@@ -532,16 +492,14 @@
   <div class="noise"></div>
 
   <div class="scene">
-    <div class="ambient ambient-a"></div>
-    <div class="ambient ambient-b"></div>
-
     <main class="launcher">
       <div class="launcher-inner">
-        <p class="eyebrow">RIFT ABYSS / RIFT DIVE PREVIEW</p>
+        <p class="eyebrow">RIFT ABYSS LAUNCHER</p>
         <h1 class="title">裂縫深淵</h1>
+        <div class="divider"></div>
         <p class="description">
-          先讓裂縫真的被撕開，
-          再從慢到快把視角整個吸進去。
+          在世界崩裂之後，仍有人凝視深淵。真正的入口，不需要喧鬧，
+          只需要足夠強的存在感。
         </p>
 
         <div class="actions">
@@ -550,9 +508,9 @@
         </div>
 
         <div class="meta">
-          <span>Real Rift Shape</span>
-          <span>Slow To Fast</span>
-          <span>Import Later</span>
+          <span>Version 1.0.0</span>
+          <span>Ready</span>
+          <span>Windows Build</span>
         </div>
 
         <p class="status" id="statusText">SYSTEM READY</p>
@@ -563,16 +521,18 @@
   <div class="dark-layer"></div>
   <div class="vignette"></div>
 
-  <div class="rift-stage">
-    <div class="rift-glow"></div>
-    <div class="rift-outer"></div>
-    <div class="rift-inner"></div>
-    <div class="rift-core"></div>
+  <div class="rift-wrap">
+    <div class="rift">
+      <div class="rift-aura"></div>
+      <div class="rift-glow"></div>
+      <div class="rift-core"></div>
+      <div class="rift-beam"></div>
+    </div>
   </div>
 
   <div class="flash-layer"></div>
   <div class="end-cover"></div>
-  <div class="hint" id="hint">下一步就可以把遊戲接在吸入之後</div>
+  <div class="hint" id="hint">動畫確認後，我再幫你把遊戲接進去</div>
 
   <script>
     const launchBtn = document.getElementById('launchBtn');
@@ -601,13 +561,7 @@
       clearAllTimers();
       isPlaying = false;
       hint.classList.remove('show');
-      document.body.classList.remove(
-        'phase-dark',
-        'phase-rift',
-        'phase-open',
-        'phase-enter',
-        'phase-fade'
-      );
+      document.body.classList.remove('phase-dark', 'phase-form', 'phase-open', 'phase-enter', 'phase-fade');
       setStatus('SYSTEM READY');
     }
 
@@ -621,32 +575,32 @@
 
       schedule(() => {
         setStatus('THE RIFT IS FORMING...');
-        document.body.classList.add('phase-rift');
-      }, 1100);
+        document.body.classList.add('phase-form');
+      }, 1000);
 
       schedule(() => {
         setStatus('THE RIFT IS OPENING...');
         document.body.classList.add('phase-open');
-      }, 2300);
+      }, 2200);
 
       schedule(() => {
         setStatus('THE RIFT IS FULLY OPEN...');
-      }, 3600);
+      }, 3450);
 
       schedule(() => {
         setStatus('ENTERING THE RIFT...');
         document.body.classList.add('phase-enter');
-      }, 4250);
+      }, 4100);
 
       schedule(() => {
         document.body.classList.add('phase-fade');
-      }, 6100);
+      }, 5950);
 
       schedule(() => {
         setStatus('ENTRY COMPLETE');
         hint.classList.add('show');
         isPlaying = false;
-      }, 6900);
+      }, 6700);
     }
 
     launchBtn.addEventListener('click', playAnimation);
