@@ -13,6 +13,7 @@
       --line: rgba(255, 255, 255, 0.08);
       --accent: #8f7dff;
       --accent-2: #54d8ff;
+      --duration: 3.6s;
     }
 
     * {
@@ -77,7 +78,6 @@
       display: grid;
       place-items: center;
       padding: 32px;
-      transition: opacity 0.8s ease, transform 1s ease, filter 0.8s ease;
     }
 
     .launcher-inner {
@@ -176,14 +176,12 @@
     .dark-layer {
       z-index: 5;
       background: rgba(0, 0, 0, 0);
-      transition: background 1s ease;
     }
 
     .vignette {
       z-index: 6;
       background: radial-gradient(circle at center, transparent 34%, rgba(0,0,0,0.18) 68%, rgba(0,0,0,0.46) 100%);
       opacity: 0.2;
-      transition: opacity 1s ease;
     }
 
     .rift-wrap {
@@ -222,9 +220,8 @@
         rgba(84, 216, 255, 0.85),
         transparent
       );
-      opacity: 0.34;
+      opacity: 0.36;
       filter: blur(0.4px);
-      transition: opacity 0.45s ease, transform 0.7s ease;
     }
 
     .rift-core {
@@ -236,7 +233,6 @@
         0 0 14px rgba(84, 216, 255, 0.14),
         0 0 22px rgba(143, 125, 255, 0.12);
       opacity: 0;
-      transition: width 0.85s cubic-bezier(.2,.8,.2,1), opacity 0.55s ease, box-shadow 0.85s ease;
     }
 
     .rift-glow {
@@ -252,7 +248,6 @@
       );
       filter: blur(10px);
       opacity: 0;
-      transition: width 0.85s cubic-bezier(.2,.8,.2,1), opacity 0.6s ease;
     }
 
     .rift-aura {
@@ -261,7 +256,6 @@
       background: radial-gradient(circle, rgba(143,125,255,0.18), rgba(84,216,255,0.08), transparent 72%);
       filter: blur(28px);
       opacity: 0;
-      transition: width 0.95s ease, height 0.95s ease, opacity 0.6s ease;
     }
 
     .flash-layer {
@@ -274,7 +268,6 @@
       z-index: 20;
       background: #020308;
       opacity: 0;
-      transition: opacity 0.55s ease;
     }
 
     .hint {
@@ -295,84 +288,190 @@
       opacity: 1;
     }
 
-    body.phase-dark .dark-layer {
-      background: rgba(0, 0, 0, 0.72);
+    body.playing .dark-layer {
+      animation: darken var(--duration) linear forwards;
     }
 
-    body.phase-dark .vignette {
-      opacity: 0.76;
+    body.playing .vignette {
+      animation: vignetteGrow var(--duration) linear forwards;
     }
 
-    body.phase-form .rift-beam {
-      opacity: 0.95;
-      box-shadow: 0 0 16px rgba(84, 216, 255, 0.55), 0 0 34px rgba(143, 125, 255, 0.24);
+    body.playing .launcher {
+      animation: launcherSink var(--duration) linear forwards;
     }
 
-    body.phase-open .launcher {
-      opacity: 0.1;
-      transform: scale(0.99);
-      filter: blur(1px);
+    body.playing .rift-beam {
+      animation: beamTransform var(--duration) linear forwards;
     }
 
-    body.phase-open .rift-beam {
-      opacity: 0;
-      transform: translate(-50%, -50%) scaleX(0.1);
+    body.playing .rift-core {
+      animation: riftConsume var(--duration) cubic-bezier(.22,.78,.18,1) forwards;
     }
 
-    body.phase-open .rift-core {
-      width: 22px;
-      opacity: 1;
-      box-shadow:
-        0 0 0 1px rgba(84, 216, 255, 0.14),
-        0 0 18px rgba(84, 216, 255, 0.16),
-        0 0 30px rgba(143, 125, 255, 0.14);
+    body.playing .rift-glow {
+      animation: glowConsume var(--duration) cubic-bezier(.22,.78,.18,1) forwards;
     }
 
-    body.phase-open .rift-glow {
-      width: 50px;
-      opacity: 1;
+    body.playing .rift-aura {
+      animation: auraConsume var(--duration) cubic-bezier(.22,.78,.18,1) forwards;
     }
 
-    body.phase-open .rift-aura {
-      width: 180px;
-      height: 320px;
-      opacity: 1;
+    body.playing .scene {
+      animation: cameraDive var(--duration) cubic-bezier(.22,.78,.18,1) forwards;
     }
 
-    body.phase-enter .scene {
-      animation: diveScene 1750ms cubic-bezier(.22,.78,.18,1) forwards;
+    body.playing .flash-layer {
+      animation: flashIn var(--duration) linear forwards;
     }
 
-    body.phase-enter .launcher {
-      animation: diveLauncher 850ms ease forwards;
+    body.playing .end-cover {
+      animation: endFade var(--duration) linear forwards;
     }
 
-    body.phase-enter .rift-core {
-      animation: diveRiftCore 1750ms cubic-bezier(.22,.78,.18,1) forwards;
+    @keyframes darken {
+      0% { background: rgba(0,0,0,0); }
+      100% { background: rgba(0,0,0,0.74); }
     }
 
-    body.phase-enter .rift-glow {
-      animation: diveRiftGlow 1750ms cubic-bezier(.22,.78,.18,1) forwards;
+    @keyframes vignetteGrow {
+      0% { opacity: 0.2; }
+      100% { opacity: 0.82; }
     }
 
-    body.phase-enter .rift-aura {
-      animation: diveRiftAura 1750ms cubic-bezier(.22,.78,.18,1) forwards;
+    @keyframes launcherSink {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+      }
+      32% {
+        opacity: 0.42;
+        transform: scale(0.992);
+        filter: blur(0.8px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.95);
+        filter: blur(8px);
+      }
     }
 
-    body.phase-enter .flash-layer {
-      animation: diveFlash 700ms ease forwards;
+    @keyframes beamTransform {
+      0% {
+        opacity: 0.36;
+        transform: translate(-50%, -50%) scaleX(1);
+      }
+      18% {
+        opacity: 1;
+        box-shadow: 0 0 16px rgba(84, 216, 255, 0.55), 0 0 34px rgba(143, 125, 255, 0.24);
+      }
+      34% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scaleX(0.08);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scaleX(0.08);
+      }
     }
 
-    body.phase-fade .end-cover {
-      opacity: 1;
+    @keyframes riftConsume {
+      0% {
+        width: 0px;
+        height: 78vh;
+        opacity: 0;
+      }
+      12% {
+        width: 6px;
+        height: 78vh;
+        opacity: 0.9;
+      }
+      28% {
+        width: 22px;
+        height: 80vh;
+        opacity: 1;
+      }
+      52% {
+        width: 56px;
+        height: 96vh;
+      }
+      74% {
+        width: 120px;
+        height: 130vh;
+      }
+      100% {
+        width: 220vw;
+        height: 220vh;
+        opacity: 1;
+      }
     }
 
-    @keyframes diveScene {
+    @keyframes glowConsume {
+      0% {
+        width: 16px;
+        height: 78vh;
+        opacity: 0;
+      }
+      14% {
+        opacity: 0.7;
+      }
+      30% {
+        width: 50px;
+        height: 82vh;
+        opacity: 1;
+      }
+      56% {
+        width: 120px;
+        height: 120vh;
+      }
+      78% {
+        width: 240px;
+        height: 170vh;
+      }
+      100% {
+        width: 260vw;
+        height: 240vh;
+        opacity: 1;
+      }
+    }
+
+    @keyframes auraConsume {
+      0% {
+        width: 120px;
+        height: 120px;
+        opacity: 0;
+      }
+      16% {
+        width: 160px;
+        height: 220px;
+        opacity: 0.65;
+      }
+      34% {
+        width: 220px;
+        height: 360px;
+        opacity: 1;
+      }
+      58% {
+        width: 440px;
+        height: 760px;
+      }
+      82% {
+        width: 900px;
+        height: 1400px;
+      }
+      100% {
+        width: 320vw;
+        height: 320vh;
+        opacity: 1;
+      }
+    }
+
+    @keyframes cameraDive {
       0% {
         transform: scale(1);
         filter: blur(0px);
       }
-      28% {
+      30% {
         transform: scale(1.04);
         filter: blur(0px);
       }
@@ -390,92 +489,14 @@
       }
     }
 
-    @keyframes diveLauncher {
-      0% {
-        opacity: 0.1;
-        transform: scale(0.99);
-        filter: blur(1px);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.95);
-        filter: blur(8px);
-      }
+    @keyframes flashIn {
+      0%, 72% { opacity: 0; }
+      100% { opacity: 1; }
     }
 
-    @keyframes diveRiftCore {
-      0% {
-        width: 22px;
-        height: 78vh;
-        opacity: 1;
-      }
-      30% {
-        width: 42px;
-        height: 90vh;
-      }
-      62% {
-        width: 120px;
-        height: 120vh;
-      }
-      100% {
-        width: 220vw;
-        height: 220vh;
-        opacity: 1;
-      }
-    }
-
-    @keyframes diveRiftGlow {
-      0% {
-        width: 50px;
-        height: 78vh;
-        opacity: 1;
-      }
-      34% {
-        width: 90px;
-        height: 92vh;
-      }
-      68% {
-        width: 220px;
-        height: 140vh;
-      }
-      100% {
-        width: 260vw;
-        height: 240vh;
-        opacity: 1;
-      }
-    }
-
-    @keyframes diveRiftAura {
-      0% {
-        width: 180px;
-        height: 320px;
-        opacity: 1;
-      }
-      36% {
-        width: 280px;
-        height: 520px;
-      }
-      70% {
-        width: 520px;
-        height: 920px;
-      }
-      100% {
-        width: 320vw;
-        height: 320vh;
-        opacity: 1;
-      }
-    }
-
-    @keyframes diveFlash {
-      0% {
-        opacity: 0;
-      }
-      58% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 1;
-      }
+    @keyframes endFade {
+      0%, 82% { opacity: 0; }
+      100% { opacity: 1; }
     }
 
     @media (max-width: 700px) {
@@ -545,64 +566,39 @@
     const replayBtn = document.getElementById('replayBtn');
     const statusText = document.getElementById('statusText');
     const hint = document.getElementById('hint');
+    const body = document.body;
 
-    let timers = [];
-    let isPlaying = false;
+    let endTimer = null;
+    let playing = false;
 
     function setStatus(text) {
       statusText.textContent = text;
     }
 
-    function schedule(callback, delay) {
-      const timer = setTimeout(callback, delay);
-      timers.push(timer);
-    }
-
-    function clearAllTimers() {
-      timers.forEach(clearTimeout);
-      timers = [];
-    }
-
     function resetAnimation() {
-      clearAllTimers();
-      isPlaying = false;
+      if (endTimer) clearTimeout(endTimer);
+      playing = false;
       hint.classList.remove('show');
-      document.body.classList.remove('phase-dark', 'phase-form', 'phase-open', 'phase-enter', 'phase-fade');
+      body.classList.remove('playing');
+
+      // 強制重置動畫狀態
+      void body.offsetWidth;
+
       setStatus('SYSTEM READY');
     }
 
     function playAnimation() {
-      if (isPlaying) return;
+      if (playing) return;
       resetAnimation();
-      isPlaying = true;
+      playing = true;
+      setStatus('ENTERING THE RIFT...');
+      body.classList.add('playing');
 
-      setStatus('DARKENING THE FIELD...');
-      document.body.classList.add('phase-dark');
-
-      schedule(() => {
-        setStatus('THE RIFT IS FORMING...');
-        document.body.classList.add('phase-form');
-      }, 850);
-
-      schedule(() => {
-        setStatus('THE RIFT IS OPENING...');
-        document.body.classList.add('phase-open');
-      }, 1700);
-
-      schedule(() => {
-        setStatus('ENTERING THE RIFT...');
-        document.body.classList.add('phase-enter');
-      }, 2600);
-
-      schedule(() => {
-        document.body.classList.add('phase-fade');
-      }, 4550);
-
-      schedule(() => {
+      endTimer = setTimeout(() => {
         setStatus('ENTRY COMPLETE');
         hint.classList.add('show');
-        isPlaying = false;
-      }, 5250);
+        playing = false;
+      }, 3600);
     }
 
     launchBtn.addEventListener('click', playAnimation);
